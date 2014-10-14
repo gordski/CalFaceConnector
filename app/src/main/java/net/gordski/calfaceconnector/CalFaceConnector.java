@@ -5,12 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Handler;
 import android.os.IBinder;
 import android.provider.CalendarContract;
 import android.text.format.Time;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.getpebble.android.kit.PebbleKit;
@@ -18,9 +16,6 @@ import com.getpebble.android.kit.util.PebbleDictionary;
 
 import java.util.UUID;
 
-/**
- * Created by gordski on 14/09/2014.
- */
 public class CalFaceConnector extends Service
 {
     static final UUID PEBBLE_APP_UUID = UUID.fromString("5837b1f3-ae4c-4fbd-bafd-d90985cb0dc2");
@@ -48,12 +43,12 @@ public class CalFaceConnector extends Service
     protected void sendEvents()
     {
 
-        String[] projection = new String[] { CalendarContract.Instances.TITLE, CalendarContract.Instances.BEGIN, CalendarContract.Instances.END };
+        String[] projection = new String[] { CalendarContract.Instances.TITLE, CalendarContract.Instances.ALL_DAY, CalendarContract.Instances.BEGIN, CalendarContract.Instances.END };
 
         long today = Time.getJulianDay(System.currentTimeMillis(), 0);
         Uri events = Uri.parse(CalendarContract.Instances.CONTENT_BY_DAY_URI + "/" + today + "/" + (today + 1));
 
-        Cursor q= getContentResolver().query(events, projection, null, null, null);
+        Cursor q= getContentResolver().query(events, projection, null, null, CalendarContract.Instances.BEGIN + " ASC");
 
         PebbleDictionary event = new PebbleDictionary();
 
@@ -63,13 +58,20 @@ public class CalFaceConnector extends Service
         while(q.moveToNext())
         {
             Time start = new Time();
-            start.set(q.getLong(1));
+            start.set(q.getLong(2));
             Time end   = new Time();
-            end.set(q.getLong(2));
+            end.set(q.getLong(3));
 
             if(Time.compare(end, now) >= 0)
             {
-                event.addString(0, start.format("%H:%M") + " - " + end.format("%H:%M"));
+                if(q.getInt(1) == 0)
+                {
+                    event.addString(0, start.format("%H:%M") + " - " + end.format("%H:%M"));
+                }
+                else
+                {
+                    event.addString(0, "All Day");
+                }
                 event.addString(1, q.getString(0));
 
                 // Finish with the first matching event.
