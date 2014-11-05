@@ -138,9 +138,12 @@ public class CalFaceConnector extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        if(intent.getAction() == "SEND")
+        if(intent != null)
         {
-            buildEvents();
+            if (intent.getAction() != null && intent.getAction().equals("SEND"))
+            {
+                buildEvents();
+            }
         }
         else
         {
