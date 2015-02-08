@@ -41,7 +41,7 @@ public class CalFaceConnector extends Service
             {
                 PebbleKit.sendAckToPebble(getApplicationContext(), transactionId);
 
-                startService(new Intent("SEND", null, context, CalFaceConnector.class));
+                buildEvents();
                 Log.i("CalFaceConnector", "Message received.");
             }
         });
@@ -138,19 +138,9 @@ public class CalFaceConnector extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        if(intent != null)
-        {
-            if (intent.getAction() != null && intent.getAction().equals("SEND"))
-            {
-                buildEvents();
-            }
-        }
-        else
-        {
-            // Start up.
-            Log.i("CalFaceConnector", "Service - onStart()");
-            Toast.makeText(this, "CalFaceConnector Started", Toast.LENGTH_LONG).show();
-        }
+        // Start up.
+        Log.i("CalFaceConnector", "Service - onStart()");
+        Toast.makeText(this, "CalFaceConnector Started", Toast.LENGTH_LONG).show();
 
         return START_STICKY;
     }
