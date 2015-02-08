@@ -16,6 +16,7 @@ import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,11 +73,9 @@ public class CalFaceConnector extends Service
         Time now = new Time();
         now.setToNow();
 
-        int i = 0;
-
         events.clear();
 
-        while(q.moveToNext() && i < 3)
+        while(q.moveToNext() && events.size() < 3)
         {
             Time start = new Time();
             start.set(q.getLong(2));
@@ -89,16 +88,15 @@ public class CalFaceConnector extends Service
 
                 if (q.getInt(1) == 0)
                 {
-                    event.addString(2*i, start.format("%H:%M") + " - " + end.format("%H:%M"));
+                    event.addString(0, start.format("%H:%M") + " - " + end.format("%H:%M"));
                 }
                 else
                 {
-                    event.addString(2*i, "All Day");
+                    event.addString(0, "All Day");
                 }
-                event.addString(2*i+1, q.getString(0));
+                event.addString(1, q.getString(0));
 
                 events.add(event);
-                i++;
             }
         }
 
@@ -114,7 +112,8 @@ public class CalFaceConnector extends Service
 
     protected void sendEvent()
     {
-        PebbleKit.sendDataToPebble(this, PEBBLE_APP_UUID, events.remove(0));
+        PebbleDictionary event = events.remove(0);
+        PebbleKit.sendDataToPebble(this, PEBBLE_APP_UUID, event);
     }
 
 
