@@ -66,7 +66,7 @@ public class CalFaceConnector extends Service
         String[] projection = new String[] { CalendarContract.Instances.TITLE, CalendarContract.Instances.ALL_DAY, CalendarContract.Instances.BEGIN, CalendarContract.Instances.END };
 
         long today = Time.getJulianDay(System.currentTimeMillis(), 0);
-        Uri query_uri = Uri.parse(CalendarContract.Instances.CONTENT_BY_DAY_URI + "/" + today + "/" + (today + 1));
+        Uri query_uri = Uri.parse(CalendarContract.Instances.CONTENT_BY_DAY_URI + "/" + today + "/" + today);
 
         Cursor q= getContentResolver().query(query_uri, projection, null, null, CalendarContract.Instances.BEGIN + " ASC");
 
@@ -94,7 +94,15 @@ public class CalFaceConnector extends Service
                 {
                     event.addString(0, "All Day");
                 }
-                event.addString(1, q.getString(0));
+
+                String title = q.getString(0);
+
+                if(title.length() > 40)
+                {
+                    title = title.substring(0, 40);
+                }
+
+                event.addString(1, title);
 
                 events.add(event);
             }
@@ -139,7 +147,6 @@ public class CalFaceConnector extends Service
     {
         // Start up.
         Log.i("CalFaceConnector", "Service - onStart()");
-        Toast.makeText(this, "CalFaceConnector Started", Toast.LENGTH_LONG).show();
 
         return START_STICKY;
     }
